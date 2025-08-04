@@ -1,0 +1,11 @@
+-- ver el listado de ramas/en la que estas
+git Branch
+-- para cambiar de rama 
+git checkout front
+
+----- front ----
+npm run dev 
+
+----- back ----
+mvn clean
+mvn spring-boot:run
