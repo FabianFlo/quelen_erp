@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Sidebar from "../components/layout/sidebar";
-
+import ClientLayout from "./client-layout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Quelen ERP",
+  title: "Quelen",
   description: "Dashboard de gestión",
+  icons:"/logo.ico",
 };
 
 export default function RootLayout({
@@ -27,13 +27,9 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex bg-gray-50 min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 min-h-screen`}
       >
-        {/* Sidebar */}
-        <Sidebar />
-
-        {/* Contenido principal */}
-        <main className="flex-1 p-6">{children}</main>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
