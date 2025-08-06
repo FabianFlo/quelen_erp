@@ -9,7 +9,7 @@ import { Card } from "../../components/ui/card";
 import { Ticket } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { login } from "@/lib/api/auth"; 
+import { login } from "@/lib/api/auth";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -50,9 +50,17 @@ export default function LoginPage() {
         try {
             const result = await login({ userId: usuario, password });
 
-            // Guardar datos simples de sesión
+            // Verifica si el backend devolvió un error en "tipo"
+            if (result.tipo.startsWith("ERROR")) {
+                setFormError(result.tipo);
+                setLoading(false);
+                return;
+            }
+
+            // Guardar sesión
             localStorage.setItem("usuario", result.usuario);
             localStorage.setItem("tipo", result.tipo);
+            document.cookie = `usuario=${result.usuario}; path=/; max-age=3600; samesite=lax`;
 
             router.push("/dashboard");
         } catch (error: any) {
@@ -112,7 +120,7 @@ export default function LoginPage() {
                     <p className="text-sm mt-1">
                         ¿No tienes cuenta?{" "}
                         <a
-                            href="http://192.168.7.25/help-desk2/views/formulario_solicitudes/index.php"
+                            href="http://192.168.7.25/help-desk2/"
                             className="inline-flex items-center gap-2 text-orange-600 hover:underline font-medium"
                         >
                             Soporte

@@ -2,15 +2,20 @@
 
 import { usePathname } from "next/navigation";
 import Sidebar from "../components/layout/sidebar";
+import AuthGuard from "../components/guard/AuthGuard";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isAuthPage = pathname.startsWith("/auth");
 
     return (
-        <div className="flex min-h-screen w-full">
-            {!isAuthPage && <Sidebar />}
-            <main className={`flex-1 ${!isAuthPage ? "p-6" : ""}`}>{children}</main>
-        </div>
+        <AuthGuard>
+            <div className="flex min-h-screen w-full">
+                {!isAuthPage && <Sidebar />}
+                <main className={`flex-1 ${!isAuthPage ? "p-6" : ""}`}>
+                    {children}
+                </main>
+            </div>
+        </AuthGuard>
     );
 }
