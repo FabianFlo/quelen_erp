@@ -7,7 +7,7 @@ import {
   ContactRound, ChartCandlestick, CircleDollarSign,
   Factory, ShieldPlus, Tickets, CirclePlus
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -15,12 +15,20 @@ import { useRouter } from "next/navigation";
 export default function Sidebar() {
   const [openProductores, setOpenProductores] = useState(false);
   const router = useRouter();
+  const [usuario, setUsuario] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const u = localStorage.getItem("usuario");
+      setUsuario(u);
+    }
+  }, []);
 
   return (
     <aside className="w-56 bg-white border-r flex flex-col h-screen overflow-hidden">
       {/* Encabezado fijo */}
       <div className="px-4 py-1 border-b bg-muted shrink-0">
-        
+
         <div className="flex items-center">
           <Image
             src="/logo.png"
@@ -34,7 +42,7 @@ export default function Sidebar() {
               Quelen <span className="text-xs text-muted-foreground"> - Admin</span>
             </div>
             <div className="text-xs text-muted-foreground flex justify-around">
-              fflores
+              {usuario ?? "No logueado"}
             </div>
           </div>
         </div>

@@ -9,6 +9,7 @@ import { Card } from "../../components/ui/card";
 import { Ticket } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { login } from "@/lib/api/auth"; 
 
 export default function LoginPage() {
     const router = useRouter();
@@ -37,7 +38,7 @@ export default function LoginPage() {
         setCapsLock(e.getModifierState("CapsLock"));
     };
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
         if (!usuario || !password || usuarioError || passwordError) {
             setFormError("Por favor, completa todos los campos correctamente.");
             return;
@@ -46,10 +47,18 @@ export default function LoginPage() {
         setFormError("");
         setLoading(true);
 
-        // Redirige rápidamente después de mostrar la animación corta
-        setTimeout(() => {
+        try {
+            const result = await login({ userId: usuario, password });
+
+            // Guardar datos simples de sesión
+            localStorage.setItem("usuario", result.usuario);
+            localStorage.setItem("tipo", result.tipo);
+
             router.push("/dashboard");
-        }, 700); // 700ms total animación
+        } catch (error: any) {
+            setFormError(error.message || "Error al iniciar sesión.");
+            setLoading(false);
+        }
     };
 
     return (
@@ -103,7 +112,7 @@ export default function LoginPage() {
                     <p className="text-sm mt-1">
                         ¿No tienes cuenta?{" "}
                         <a
-                            href="http://192.168.7.25/help-desk2/index.php"
+                            href="http://192.168.7.25/help-desk2/views/formulario_solicitudes/index.php"
                             className="inline-flex items-center gap-2 text-orange-600 hover:underline font-medium"
                         >
                             Soporte

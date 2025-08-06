@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Quelen",
   description: "Dashboard de gestión",
-  icons:"/logo.ico",
+  icons:"/Quelen_logo.ico",
 };
 
 export default function RootLayout({
