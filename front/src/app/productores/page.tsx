@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Eye } from "lucide-react";
+import { Plus, Pencil, Eye, FileSpreadsheet  } from "lucide-react";
 
 export default function PanelProductores() {
     const router = useRouter();
@@ -20,7 +20,7 @@ export default function PanelProductores() {
 
             {/* Tarjetas de navegación */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Card className="hover:shadow-lg transition cursor-pointer" onClick={() => router.push("/productores/crear_productor")}>
+                <Card className="hover:shadow-lg transition cursor-pointer" onClick={() => router.push("/productores/crear/productor")}>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-stale-600">
                             <Plus className="w-5 h-5" />
@@ -32,7 +32,7 @@ export default function PanelProductores() {
                     </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition cursor-pointer" onClick={() => router.push("/productores/crear")}>
+                <Card className="hover:shadow-lg transition cursor-pointer" onClick={() => router.push("/productores/crear/predio")}>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-stale-600">
                             <Plus className="w-5 h-5" />
@@ -44,7 +44,7 @@ export default function PanelProductores() {
                     </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition cursor-pointer" onClick={() => router.push("/productores/crear")}>
+                <Card className="hover:shadow-lg transition cursor-pointer" onClick={() => router.push("/productores/crear/cuartel")}>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-stale-600">
                             <Plus className="w-5 h-5" />
@@ -77,6 +77,18 @@ export default function PanelProductores() {
                     </CardHeader>
                     <CardContent>
                         <p className="text-sm text-muted-foreground">Ver el listado completo de productores.</p>
+                    </CardContent>
+                </Card>
+                
+                <Card className="hover:shadow-lg transition cursor-pointer" onClick={() => router.push("/productores/listar")}>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-stale-600">
+                            <FileSpreadsheet className="w-5 h-5" />
+                            Subida de Productores
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground">Subida masiva por CSV de productores.</p>
                     </CardContent>
                 </Card>
             </div>

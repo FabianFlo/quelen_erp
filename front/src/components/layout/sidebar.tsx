@@ -154,7 +154,7 @@ export default function Sidebar() {
               {openProductores && (
                 <ul className="ml-4 mt-1 space-y-1 border-l-2 border-gray-300 pl-3">
                   <li
-                    onClick={() => router.push("/productores/crear_productor")}
+                    onClick={() => router.push("/productores/crear/productor")}
                     className="flex items-center gap-2 text-sm text-foreground px-2 py-1 rounded-md hover:bg-muted cursor-pointer">
                     <CirclePlus className="h-4 w-4" />
                     Crear Productores
