@@ -2,19 +2,22 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import ComunaSelect from "@/components/ui/ComunaSelect";
 import { Button } from "@/components/ui/button";
 import { UserRound, BotIcon, HandIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useProductorWizard } from "../../context/ProductorWizardContext";
+import { useComunas } from "@/hooks/useComunas";
 
 export default function Page() {
   const router = useRouter();
   const { productor, setProductor } = useProductorWizard();
+  const { comunas, loading, error } = useComunas();
 
   const onChange =
     (field: keyof typeof productor) =>
-    (e: React.ChangeEvent<HTMLInputElement>) =>
-      setProductor({ ...productor, [field]: e.target.value });
+      (e: React.ChangeEvent<HTMLInputElement>) =>
+        setProductor({ ...productor, [field]: e.target.value });
 
   return (
     <>
@@ -50,18 +53,12 @@ export default function Page() {
         </div>
 
         <div className="space-y-1.5">
-          <Label>Comuna (código)</Label>
-          <Input placeholder="Ej: 1351" value={productor.comuna} onChange={onChange("comuna")} />
-        </div>
-
-        <div className="space-y-1.5">
-          <Label>Provincia (código)</Label>
-          <Input placeholder="Ej: 1351" value={productor.provincia} onChange={onChange("provincia")} />
-        </div>
-        
-        <div className="space-y-1.5">
-          <Label>Region (código)</Label>
-          <Input placeholder="Ej: 1351" value={productor.region} onChange={onChange("region")} />
+          <Label>Comuna</Label>
+          <ComunaSelect
+            value={productor.comuna ?? ""}
+            onChange={(codigo) => setProductor({ ...productor, comuna: codigo })}
+            placeholder="Escribe para buscar..."
+          />
         </div>
 
         <div className="space-y-1.5 md:col-span-3">

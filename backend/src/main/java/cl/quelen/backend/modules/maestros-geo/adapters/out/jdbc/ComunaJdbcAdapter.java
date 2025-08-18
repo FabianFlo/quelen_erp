@@ -1,20 +1,23 @@
-// src/main/java/cl/quelen/backend/services/ComunaService.java
-package cl.quelen.backend.services;
+package cl.quelen.backend.modules.maestrosgeo.adapters.out.jdbc;
 
+import cl.quelen.backend.modules.maestrosgeo.domain.model.Comuna;
+import cl.quelen.backend.modules.maestrosgeo.domain.port.out.ComunaQueryPort;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 
-@Service
-public class ComunaService {
+@Component
+public class ComunaJdbcAdapter implements ComunaQueryPort {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public ComunaService(JdbcTemplate jdbcTemplate) {
+    public ComunaJdbcAdapter(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<String> listarComunasPorTem(String codTem) {
+    @Override
+    public List<Comuna> listarPorTem(String codTem) {
         final String sql =
             "SELECT COD_COM, DESCRIPCION " +
             "FROM COMUNAS " +
@@ -29,7 +32,7 @@ public class ComunaService {
                 String desc = rs.getString("DESCRIPCION");
                 cod = cod == null ? "" : cod.trim();
                 desc = desc == null ? "" : desc.trim();
-                return cod + " - " + desc;
+                return new Comuna(cod, desc);
             }
         );
     }
