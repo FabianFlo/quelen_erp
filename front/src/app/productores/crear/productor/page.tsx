@@ -54,6 +54,16 @@ export default function Page() {
           <Input placeholder="Ej: 1351" value={productor.comuna} onChange={onChange("comuna")} />
         </div>
 
+        <div className="space-y-1.5">
+          <Label>Provincia (código)</Label>
+          <Input placeholder="Ej: 1351" value={productor.provincia} onChange={onChange("provincia")} />
+        </div>
+        
+        <div className="space-y-1.5">
+          <Label>Region (código)</Label>
+          <Input placeholder="Ej: 1351" value={productor.region} onChange={onChange("region")} />
+        </div>
+
         <div className="space-y-1.5 md:col-span-3">
           <Label>GGN</Label>
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center">

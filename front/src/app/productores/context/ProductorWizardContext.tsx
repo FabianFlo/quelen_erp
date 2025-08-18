@@ -9,6 +9,8 @@ type Productor = {
   direccion: string;
   ciudad: string;
   comuna: string;
+  provincia: string;
+  region: string;
   ggn: string;
 };
 
@@ -47,6 +49,8 @@ export function ProductorWizardProvider({ children }: { children: ReactNode }) {
     direccion: "",
     ciudad: "",
     comuna: "",
+    provincia: "",
+    region: "",
     ggn: "",
   });
 

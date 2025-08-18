@@ -1,13 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
-import { Button } from "../../components/ui/button";
-import { Card } from "../../components/ui/card";
+import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Ticket } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { login } from "@/lib/api/auth";
 
@@ -20,7 +20,15 @@ export default function LoginPage() {
     const [usuarioError, setUsuarioError] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [formError, setFormError] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+
+    useEffect(() => {
+        const err = localStorage.getItem("login_error");
+        if (err) {
+            setFormError(err);
+            localStorage.removeItem("login_error");
+        }
+    }, []);
 
     const handleUsuarioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/\s/g, "").toLowerCase();
@@ -43,73 +51,40 @@ export default function LoginPage() {
             setFormError("Por favor, completa todos los campos correctamente.");
             return;
         }
-
         setFormError("");
-        setLoading(true);
+        setSubmitting(true);
 
         try {
             const result = await login({ userId: usuario, password });
 
-            // Verifica si el backend devolvió un error en "tipo"
-            if (result.tipo.startsWith("ERROR")) {
+            if (typeof result?.tipo === "string" && result.tipo.startsWith("ERROR")) {
                 setFormError(result.tipo);
-                setLoading(false);
+                setSubmitting(false);
                 return;
             }
 
-            // Guardar sesión
+            // Guardar sesión para Sidebar
             localStorage.setItem("usuario", result.usuario);
             localStorage.setItem("tipo", result.tipo);
-            document.cookie = `usuario=${result.usuario}; path=/; max-age=3600; samesite=lax`;
+            document.cookie = `usuario=${encodeURIComponent(result.usuario)}; path=/; max-age=3600; samesite=lax`;
 
-            router.push("/dashboard");
+            try {
+                window.dispatchEvent(new StorageEvent("storage", { key: "usuario", newValue: result.usuario }));
+            } catch {}
+
+            const msg = encodeURIComponent("Cargando...");
+            const next = encodeURIComponent("/dashboard");
+            const duration = 1500; // ms
+            router.push(`/loading?next=${next}&msg=${msg}&duration=${duration}`);
         } catch (error: any) {
-            setFormError(error.message || "Error al iniciar sesión.");
-            setLoading(false);
+            setFormError(error?.message || "Error al iniciar sesión.");
+            setSubmitting(false);
         }
     };
 
     return (
         <div className="relative flex h-screen bg-white text-slate-900 overflow-hidden">
-            {/* Pantalla animada corta */}
-            <AnimatePresence>
-                {loading && (
-                    <motion.div
-                        key="loading"
-                        className="absolute inset-0 z-50 bg-white flex items-center justify-center"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.6, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.6, opacity: 0 }}
-                            transition={{
-                                type: "spring",
-                                stiffness: 180,
-                                damping: 20,
-                                duration: 0.45,
-                            }}
-                            className="text-center"
-                        >
-                            <Image src="/logo.png" alt="Logo" width={120} height={120} priority />
-                            <motion.p
-                                initial={{ y: 15, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                exit={{ y: 15, opacity: 0 }}
-                                transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
-                                className="mt-6 text-base text-slate-600 font-medium"
-                            >
-                                Cargando...
-                            </motion.p>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Login formulario */}
+            {/* Columna izquierda: formulario */}
             <div className="w-full lg:w-[30%] h-screen px-6 sm:px-8 flex flex-col justify-center space-y-6 sm:space-y-4 overflow-y-auto">
                 <div className="flex justify-center mb-4">
                     <Image src="/logo.png" alt="Logo" width={96} height={96} />
@@ -129,7 +104,13 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                <div className="space-y-4">
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        if (!submitting) handleLogin();
+                    }}
+                    className="space-y-4"
+                >
                     <div>
                         <Label htmlFor="usuario" className="mb-3">Usuario SDT</Label>
                         <Input
@@ -138,7 +119,7 @@ export default function LoginPage() {
                             onChange={handleUsuarioChange}
                             onKeyDown={handleCapsLock}
                             autoComplete="off"
-                            disabled={loading}
+                            disabled={submitting}
                         />
                         {usuarioError && <p className="text-xs text-red-500 mt-1">{usuarioError}</p>}
                     </div>
@@ -151,7 +132,7 @@ export default function LoginPage() {
                             value={password}
                             onChange={handlePasswordChange}
                             onKeyDown={handleCapsLock}
-                            disabled={loading}
+                            disabled={submitting}
                         />
                         {passwordError && <p className="text-xs text-red-500 mt-1">{passwordError}</p>}
                         {capsLock && <p className="text-xs text-yellow-600 mt-1">Mayúsculas activadas</p>}
@@ -162,13 +143,13 @@ export default function LoginPage() {
                     )}
 
                     <Button
+                        type="submit"
                         className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold"
-                        onClick={handleLogin}
-                        disabled={loading}
+                        disabled={submitting}
                     >
-                        Iniciar
+                        {submitting ? "Validando..." : "Iniciar"}
                     </Button>
-                </div>
+                </form>
 
                 <div className="text-center mt-8 text-xs text-slate-500">
                     <p>Versión 0.1 – Ambiente: Dev</p>
@@ -180,7 +161,7 @@ export default function LoginPage() {
                 </div>
             </div>
 
-            {/* Imagen decorativa derecha */}
+            {/* Columna derecha: imagen/intro */}
             <div className="hidden lg:flex w-[70%] relative h-screen overflow-hidden items-center justify-center bg-slate-100">
                 <Image
                     src="/fondo.png"
