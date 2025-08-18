@@ -7,17 +7,103 @@ import { Button } from "@/components/ui/button";
 import { UserRound, BotIcon, HandIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useProductorWizard } from "../../context/ProductorWizardContext";
-import { useComunas } from "@/hooks/useComunas";
+import { API_URL, COD_EMP, COD_TEM } from "@/lib/config";
+
+// Helpers
+function parseRut(raw: string | undefined) {
+  if (!raw) return { rutPro: undefined as number | undefined, dv: undefined as string | undefined };
+  const s = String(raw).replace(/\./g, "").trim().toUpperCase(); // limpia puntos y espacios
+  const parts = s.split("-");
+  if (parts.length === 2) {
+    const num = parseInt(parts[0].replace(/\D/g, ""), 10);
+    const dv = parts[1].trim();
+    return { rutPro: isNaN(num) ? undefined : num, dv: dv || undefined };
+  }
+  // Si viene sin guión, intentamos tomar el último char como DV
+  const num = parseInt(s.slice(0, -1).replace(/\D/g, ""), 10);
+  const dv = s.slice(-1);
+  return { rutPro: isNaN(num) ? undefined : num, dv: dv || undefined };
+}
 
 export default function Page() {
   const router = useRouter();
   const { productor, setProductor } = useProductorWizard();
-  const { comunas, loading, error } = useComunas();
 
   const onChange =
     (field: keyof typeof productor) =>
-      (e: React.ChangeEvent<HTMLInputElement>) =>
-        setProductor({ ...productor, [field]: e.target.value });
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setProductor({ ...productor, [field]: e.target.value });
+
+  // Validación mínima antes de enviar
+  function validate() {
+    const errors: string[] = [];
+    if (!COD_EMP) errors.push("Falta NEXT_PUBLIC_COD_EMP");
+    if (!COD_TEM) errors.push("Falta NEXT_PUBLIC_COD_TEM");
+    if (!API_URL) errors.push("Falta NEXT_PUBLIC_API_URL");
+    if (!productor.codigo?.trim()) errors.push("Código del productor es requerido");
+    if (!productor.nombre?.trim()) errors.push("Nombre del productor es requerido");
+    // ZON es obligatorio en BDD; si no tienes campo, usa “C” por defecto (ajústalo si tu negocio define otro)
+    return errors;
+  }
+
+  async function handleGuardar() {
+    const errs = validate();
+    if (errs.length) {
+      alert("Corrige:\n- " + errs.join("\n- "));
+      return;
+    }
+
+    const { rutPro, dv } = parseRut(productor.rut);
+
+    // Si seleccionó en el combo, enviamos el código; si NO, usamos “Ciudad” como nombre de comuna.
+    const comunaCodigo = productor.comuna?.trim() || null;
+    const comunaNombre = !comunaCodigo && productor.ciudad?.trim() ? productor.ciudad.trim().toUpperCase() : null;
+
+    // ZON requerido por la BDD; usa tu valor de negocio (aquí “C” por tu ejemplo)
+    const zon = "C";
+
+    const payload = {
+      codEmp: COD_EMP,
+      codTem: COD_TEM,
+      codPro: productor.codigo?.trim(),
+      nomPro: productor.nombre?.trim(),
+      zon,
+
+      rutPro: rutPro ?? undefined,
+      dv: dv ?? undefined,
+      dirPro: productor.direccion?.trim() || undefined,
+      ggn: productor.ggn?.trim() || undefined,
+
+      comunaCodigo,  // ej. "13302"
+      comunaNombre,  // ej. "PAINE" (solo si no hay código)
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/productores`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`HTTP ${res.status} ${txt}`);
+      }
+
+      const data = await res.json().catch(() => ({} as any));
+      // Espera { created: boolean, codPro: string, message: string }
+      if (data?.created) {
+        alert(`Productor ${data.codPro} creado correctamente`);
+        // Si quieres redirigir a listado:
+        // router.push("/productores");
+      } else {
+        alert(`No se pudo crear: ${data?.message ?? "Error desconocido"}`);
+      }
+    } catch (e: any) {
+      console.error(e);
+      alert(`Error al guardar: ${e?.message ?? e}`);
+    }
+  }
 
   return (
     <>
@@ -87,7 +173,7 @@ export default function Page() {
       <div className="flex justify-end items-center mt-10">
         <Button
           className="bg-emerald-600 hover:bg-emerald-800 text-white text-md px-6 py-2 rounded-lg shadow-md transition-all"
-          onClick={() => console.log("Guardar Productor", productor)}
+          onClick={handleGuardar}
         >
           Guardar Productor
         </Button>

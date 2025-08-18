@@ -27,13 +27,10 @@ public class ComunaJdbcAdapter implements ComunaQueryPort {
         return jdbcTemplate.query(
             sql,
             ps -> ps.setString(1, codTem),
-            (rs, i) -> {
-                String cod = rs.getString("COD_COM");
-                String desc = rs.getString("DESCRIPCION");
-                cod = cod == null ? "" : cod.trim();
-                desc = desc == null ? "" : desc.trim();
-                return new Comuna(cod, desc);
-            }
+            (rs, i) -> new Comuna(
+                rs.getString("COD_COM") == null ? "" : rs.getString("COD_COM").trim(),
+                rs.getString("DESCRIPCION") == null ? "" : rs.getString("DESCRIPCION").trim()
+            )
         );
     }
 }
