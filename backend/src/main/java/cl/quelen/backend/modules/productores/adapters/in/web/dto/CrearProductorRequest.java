@@ -1,5 +1,9 @@
 package cl.quelen.backend.modules.productores.adapters.in.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CrearProductorRequest {
     // obligatorios
     public String codEmp;      // ej. "MER"
@@ -17,4 +21,8 @@ public class CrearProductorRequest {
     // comuna por código o nombre (uno de los dos)
     public String comunaCodigo; // "13302"
     public String comunaNombre; // "PAINE"
+
+    // CIU_PRO: lo que mande el front. Aceptamos varios alias para asegurar mapeo.
+    @JsonAlias({ "ciudad", "cuidad", "ciuPro", "ciudadNombre", "city" })
+    public String ciudad;      // se truncará a 15 al persistir
 }

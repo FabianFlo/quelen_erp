@@ -18,12 +18,10 @@ public class CrearProductorService implements CrearProductor {
 
     @Override
     public Result handle(Command c) {
-        // Validaciones mínimas obligatorias por BDD
         if (isBlank(c.codEmp) || isBlank(c.codTem) || isBlank(c.codPro) || isBlank(c.nomPro) || isBlank(c.zon)) {
             return Result.error("Faltan datos obligatorios: COD_EMP, COD_TEM, COD_PRO, NOM_PRO, ZON");
         }
 
-        // Resolver comuna (por código o por nombre)
         ResolveComuna.Result r = resolveComuna.handle(new ResolveComuna.Query(
                 emptyToNull(c.comunaCodigo),
                 emptyToNull(c.comunaNombre)
@@ -33,10 +31,14 @@ public class CrearProductorService implements CrearProductor {
         }
         ComunaFull cf = r.comuna;
 
-        // Mapear CIU_PRO = nombre comuna (máx 15), PRV_PRO = nombre provincia (máx 15)
-        String ciuPro = left(cf.getComunaNombre(), 15);
-        String prvPro = left(cf.getProvinciaNombre(), 15);
+        // CIU_PRO = lo que vino del front (truncado a 15)
+        String ciuProValor  = left(safe(c.ciudad), 15);
 
+        // PRV_PRO = CÓDIGO de provincia ; NIV_PRO = CÓDIGO de región
+        String prvProCodigo = left(cf.getProvinciaCodigo(), 15);
+        String nivProCodigo = left(cf.getRegionCodigo(), 8);
+
+        // Entidad de dominio (campos que ya venías usando para transportar)
         Productor p = new Productor(
                 c.codEmp.trim(),
                 c.codTem.trim(),
@@ -45,18 +47,34 @@ public class CrearProductorService implements CrearProductor {
                 c.rutPro == null ? 0 : c.rutPro,
                 safe(c.dv),
                 safe(c.dirPro),
-                ciuPro,
-                prvPro,
+                ciuProValor,                // <- ahora viene del front
+                prvProCodigo,               // usamos este slot para el valor que persistiremos
                 c.zon.trim(),
                 cf.getComunaCodigo(),
                 cf.getProvinciaCodigo(),
                 safe(c.ggn)
         );
 
-        guardarPort.guardar(p);
+        // Nombre corto (<=30, sin cortar palabras; si la 1ª excede, se trunca)
+        String nomProCrt = buildNombreCorto(p.nomPro, 30);
+
+        boolean swInactivo = false;   // activo al crear
+        String fax = p.ggn;           // FAX = GGN
+
+        GuardarProductorPort.GuardarRequest req = GuardarProductorPort.GuardarRequest.fromDomain(
+                p,
+                nomProCrt,
+                swInactivo,
+                fax,
+                nivProCodigo,          // NIV_PRO = código región
+                prvProCodigo           // PRV_PRO = código provincia
+        );
+
+        guardarPort.guardar(req);
         return Result.ok(p.codPro);
     }
 
+    // ==== helpers ====
     private static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
     private static String safe(String s) { return s == null ? "" : s.trim(); }
     private static String left(String s, int max) {
@@ -65,4 +83,23 @@ public class CrearProductorService implements CrearProductor {
         return t.length() <= max ? t : t.substring(0, max);
     }
     private static String emptyToNull(String s) { return (s == null || s.trim().isEmpty()) ? null : s.trim(); }
+
+    private static String buildNombreCorto(String texto, int maxLen) {
+        if (texto == null) return "";
+        String t = texto.trim().replaceAll("\\s+", " ");
+        if (t.length() <= maxLen) return t;
+        String[] words = t.split(" ");
+        StringBuilder sb = new StringBuilder();
+        for (String w : words) {
+            if (sb.length() == 0) {
+                if (w.length() > maxLen) return w.substring(0, maxLen);
+                sb.append(w);
+            } else {
+                int nextLen = sb.length() + 1 + w.length();
+                if (nextLen <= maxLen) sb.append(' ').append(w);
+                else break;
+            }
+        }
+        return sb.toString();
+    }
 }

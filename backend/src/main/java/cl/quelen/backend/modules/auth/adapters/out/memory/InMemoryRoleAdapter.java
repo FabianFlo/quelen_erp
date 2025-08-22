@@ -9,7 +9,7 @@ import java.util.List;
 @Component
 public class InMemoryRoleAdapter implements RoleGateway {
 
-    private final List<String> adminUsers = Arrays.asList("otobar", "spozo", "fflores");
+    private final List<String> adminUsers = Arrays.asList("esupulveda", "jgarces", "fflores");
     private final List<String> patioUsers = Arrays.asList("jverdejo", "srivas");
     private final List<String> normalUsers = Arrays.asList("user1", "user2");
 
