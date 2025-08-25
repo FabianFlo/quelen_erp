@@ -17,7 +17,7 @@ public class AuthController {
         this.authenticateUser = authenticateUser;
     }
 
-    @PostMapping("/login")
+    @PostMapping("/api/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req) {
         var result = authenticateUser.handle(new AuthenticateUser.Command(req.userId, req.password));
 

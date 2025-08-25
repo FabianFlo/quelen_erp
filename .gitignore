@@ -4,3 +4,9 @@ __pycache__/
 
 backend/src/main/resources/application.properties
 backend/run
+Dockerfile
+Dockerfile.dev
+docker-compose.dev.yml
+docker-compose.prod.yml
+nginx.conf
+nginx.dev.conf
