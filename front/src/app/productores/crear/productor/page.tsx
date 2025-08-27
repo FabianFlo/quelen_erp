@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import ComunaSelect from "@/components/ui/ComunaSelect";
 import { Button } from "@/components/ui/button";
 import { UserRound, BotIcon, HandIcon } from "lucide-react";
+import ExportadorSelect from "@/components/ui/ExportadorSelect";
 import { useRouter } from "next/navigation";
 import { useProductorWizard } from "../../context/ProductorWizardContext";
 import { API_URL, COD_EMP, COD_TEM } from "@/lib/config";
@@ -116,12 +117,12 @@ export default function Page() {
   // onChange genérico con normalizador por campo
   const onChangeFmt =
     (field: keyof typeof productor, normalizer: (v: string) => string, maxLen?: number) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const raw = e.target.value ?? "";
-      const value = normalizer(raw);
-      setProductor({ ...productor, [field]: value });
-      if (maxLen) e.currentTarget.maxLength = maxLen;
-    };
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        const raw = e.target.value ?? "";
+        const value = normalizer(raw);
+        setProductor({ ...productor, [field]: value });
+        if (maxLen) e.currentTarget.maxLength = maxLen;
+      };
 
   // Validación mínima antes de enviar
   function validate() {
@@ -302,8 +303,19 @@ export default function Page() {
           />
         </div>
 
+        {/* Exportador (selector) */}
+        <div className="space-y-1.5">
+          <Label>Exportador</Label>
+          <ExportadorSelect
+            value={String(productor.exportador ?? "")}
+            onChange={(codigo) => setProductor({ ...productor, exportador: codigo })}
+            placeholder="Escribe para buscar..."
+          />
+        </div>
+
+
         {/* GGN: 16 varchar (alfanumérico) */}
-        <div className="space-y-1.5 md:col-span-3">
+        <div className="space-y-1.5 md:col-span-2">
           <Label>GGN</Label>
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
             <Input
