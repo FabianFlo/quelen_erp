@@ -22,7 +22,7 @@ public class ProductorController {
                 req.codEmp, req.codTem, req.codPro, req.nomPro, req.zon,
                 req.rutPro, req.dv, req.dirPro, req.ggn,
                 req.comunaCodigo, req.comunaNombre,
-                req.ciudad // <- CIU_PRO vendrá desde el front (con alias en el DTO)
+                req.ciudad, req.creadoPor 
         );
         var result = crearProductor.handle(cmd);
         return ResponseEntity.ok(new ProductorResponse(result.created, result.codPro, result.message));

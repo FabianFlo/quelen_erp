@@ -5,7 +5,7 @@ import cl.quelen.backend.modules.productores.domain.model.Productor;
 public interface GuardarProductorPort {
 
     void guardar(GuardarRequest p);
-      
+
     final class GuardarRequest {
         // Obligatorios / negocio
         public final String codEmp;
@@ -32,10 +32,16 @@ public interface GuardarProductorPort {
         public final String fax;         // igual a ggn
         public final boolean swInactivo; // true = inactivo
 
-        public GuardarRequest(String codEmp, String codTem, String codPro, String nomPro, String nomProCrt,
-                              String zon, Integer rutPro, String dv, String dirPro,
-                              String ciuPro, String prvPro, String nivPro, String codCom, String codProvc,
-                              String ggn, String fax, boolean swInactivo) {
+        // Responsable (usuario que crea el productor)
+        public final String responsableProd;
+
+        public GuardarRequest(String codEmp, String codTem, String codPro,
+                              String nomPro, String nomProCrt, String zon,
+                              Integer rutPro, String dv, String dirPro,
+                              String ciuPro, String prvPro, String nivPro,
+                              String codCom, String codProvc,
+                              String ggn, String fax, boolean swInactivo,
+                              String responsableProd) {
             this.codEmp = codEmp;
             this.codTem = codTem;
             this.codPro = codPro;
@@ -53,6 +59,7 @@ public interface GuardarProductorPort {
             this.ggn = ggn;
             this.fax = fax;
             this.swInactivo = swInactivo;
+            this.responsableProd = responsableProd;
         }
 
         public static GuardarRequest fromDomain(Productor p,
@@ -60,12 +67,14 @@ public interface GuardarProductorPort {
                                                 boolean swInactivo,
                                                 String fax,
                                                 String nivPro,
-                                                String prvPro) {
+                                                String prvPro,
+                                                String responsableProd) {
             return new GuardarRequest(
                 p.codEmp, p.codTem, p.codPro, p.nomPro, nomProCrt,
                 p.zon, p.rutPro, p.dv, p.dirPro,
                 p.ciuPro, prvPro, nivPro, p.codCom, p.codProvc,
-                p.ggn, fax, swInactivo
+                p.ggn, fax, swInactivo,
+                responsableProd 
             );
         }
     }

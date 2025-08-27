@@ -6,23 +6,26 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CrearProductorRequest {
     // obligatorios
-    public String codEmp;      // ej. "MER"
-    public String codTem;      // ej. "7"
-    public String codPro;      // ej. "A5001"
-    public String nomPro;      // ej. "AGRICOLA LA CARRERA LTDA"
-    public String zon;         // ej. "C"
+    public String codEmp;      
+    public String codTem;      
+    public String codPro;      
+    public String nomPro;      
+    public String zon;         
 
     // opcionales / otros
-    public Integer rutPro;     // 77128700
-    public String dv;          // "K"
-    public String dirPro;      // "FUNDO ..."
-    public String ggn;         // "40499..."
+    public Integer rutPro;     
+    public String dv;          
+    public String dirPro;      
+    public String ggn;         
 
     // comuna por código o nombre (uno de los dos)
-    public String comunaCodigo; // "13302"
-    public String comunaNombre; // "PAINE"
+    public String comunaCodigo;
+    public String comunaNombre;
 
-    // CIU_PRO: lo que mande el front. Aceptamos varios alias para asegurar mapeo.
     @JsonAlias({ "ciudad", "cuidad", "ciuPro", "ciudadNombre", "city" })
-    public String ciudad;      // se truncará a 15 al persistir
+    public String ciudad;      
+
+    // NUEVO: responsable (usuario del sidebar)
+    @JsonAlias({ "creadoPor", "responsable", "usuario" })
+    public String creadoPor;   // -> RESPONSABLE_PROD
 }

@@ -12,6 +12,9 @@ type Productor = {
   provincia: string;
   region: string;
   ggn: string;
+
+  // ya lo usas en page.tsx
+  exportador: string;
 };
 
 type Predio = {
@@ -37,6 +40,10 @@ type WizardContext = {
   setPredio: (p: Predio) => void;
   cuartel: Cuartel;
   setCuartel: (c: Cuartel) => void;
+
+  // === NUEVO: responsable de la creación ===
+  usuarioCreador: string;                  // user logueado/responsable
+  setUsuarioCreador: (u: string) => void;  // para setearlo desde donde quieras
 };
 
 const Ctx = createContext<WizardContext | null>(null);
@@ -52,6 +59,7 @@ export function ProductorWizardProvider({ children }: { children: ReactNode }) {
     provincia: "",
     region: "",
     ggn: "",
+    exportador: "",
   });
 
   const [predio, setPredio] = useState<Predio>({
@@ -70,8 +78,22 @@ export function ProductorWizardProvider({ children }: { children: ReactNode }) {
     tipo: "",
   });
 
+  // === NUEVO: usuario responsable (inicia vacío) ===
+  const [usuarioCreador, setUsuarioCreador] = useState<string>("");
+
   return (
-    <Ctx.Provider value={{ productor, setProductor, predio, setPredio, cuartel, setCuartel }}>
+    <Ctx.Provider
+      value={{
+        productor,
+        setProductor,
+        predio,
+        setPredio,
+        cuartel,
+        setCuartel,
+        usuarioCreador,
+        setUsuarioCreador,
+      }}
+    >
       {children}
     </Ctx.Provider>
   );

@@ -19,17 +19,19 @@ public class GuardarProductorJdbcAdapter implements GuardarProductorPort {
             "INSERT INTO dbo.PRODUCTORES (" +
             "  COD_EMP, COD_TEM, COD_PRO, NOM_PRO, NOM_PRO_CRT, " +
             "  RUT_PRO, DV, DIR_PRO, " +
-            "  CIU_PRO, PRV_PRO, NIV_PRO, " +          // CIU_PRO: nombre comuna | PRV_PRO: código provincia | NIV_PRO: código región
+            "  CIU_PRO, PRV_PRO, NIV_PRO, " +
             "  ZON, DIAS_LIQ_INT, SW_ESTAND_MAT, TOT_INT, SW_REMU, SW_INACTIVO, " +
             "  COD_COM, COD_PROVC, GGN, FAX, " +
-            "  FEC_INI_CBR_INT, FEC_INTERES " +
+            "  FEC_INI_CBR_INT, FEC_INTERES, " +
+            "  RESPONSABLE_PROD " +
             ") VALUES (" +
             "  ?, ?, ?, ?, ?, " +                   // COD_EMP, COD_TEM, COD_PRO, NOM_PRO, NOM_PRO_CRT
             "  ?, ?, ?, " +                         // RUT_PRO, DV, DIR_PRO
-            "  ?, ?, ?, " +                         // CIU_PRO (nombre), PRV_PRO (código), NIV_PRO (código)
-            "  ?, 0, 0, 0.0, 0, ?, " +              // ZON, ..., SW_INACTIVO (bit)
-            "  ?, ?, ?, ?, " +                      // COD_COM, COD_PROVC (códigos), GGN, FAX
-            "  NULL, NULL" +                        // fechas NULL
+            "  ?, ?, ?, " +                         // CIU_PRO, PRV_PRO, NIV_PRO
+            "  ?, 0, 0, 0.0, 0, ?, " +              // ZON, ..., SW_INACTIVO
+            "  ?, ?, ?, ?, " +                      // COD_COM, COD_PROVC, GGN, FAX
+            "  NULL, NULL, " +                      // fechas NULL
+            "  ?" +                                 // RESPONSABLE_PROD
             ")";
 
         jdbc.update(sql,
@@ -43,17 +45,19 @@ public class GuardarProductorJdbcAdapter implements GuardarProductorPort {
             safe(p.dv),
             safe(p.dirPro),
 
-            safe(p.ciuPro),                         // NOMBRE comuna
-            safe(p.prvPro),                         // CÓDIGO provincia
-            safe(p.nivPro),                         // CÓDIGO región
+            safe(p.ciuPro),
+            safe(p.prvPro),
+            safe(p.nivPro),
 
             p.zon,
             p.swInactivo ? 1 : 0,
 
-            safe(p.codCom),                         // CÓDIGO comuna
-            safe(p.codProvc),                       // CÓDIGO provincia
+            safe(p.codCom),
+            safe(p.codProvc),
             safe(p.ggn),
-            safe(p.fax)
+            safe(p.fax),
+
+            safe(p.responsableProd)   // <<<<< NUEVO VALOR
         );
     }
 

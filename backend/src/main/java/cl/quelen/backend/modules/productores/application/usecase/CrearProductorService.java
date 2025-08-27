@@ -38,7 +38,7 @@ public class CrearProductorService implements CrearProductor {
         String prvProCodigo = left(cf.getProvinciaCodigo(), 15);
         String nivProCodigo = left(cf.getRegionCodigo(), 8);
 
-        // Entidad de dominio (campos que ya venías usando para transportar)
+        // Entidad de dominio
         Productor p = new Productor(
                 c.codEmp.trim(),
                 c.codTem.trim(),
@@ -47,15 +47,15 @@ public class CrearProductorService implements CrearProductor {
                 c.rutPro == null ? 0 : c.rutPro,
                 safe(c.dv),
                 safe(c.dirPro),
-                ciuProValor,                // <- ahora viene del front
-                prvProCodigo,               // usamos este slot para el valor que persistiremos
+                ciuProValor,
+                prvProCodigo,
                 c.zon.trim(),
                 cf.getComunaCodigo(),
                 cf.getProvinciaCodigo(),
                 safe(c.ggn)
         );
 
-        // Nombre corto (<=30, sin cortar palabras; si la 1ª excede, se trunca)
+        // Nombre corto
         String nomProCrt = buildNombreCorto(p.nomPro, 30);
 
         boolean swInactivo = false;   // activo al crear
@@ -67,7 +67,8 @@ public class CrearProductorService implements CrearProductor {
                 swInactivo,
                 fax,
                 nivProCodigo,          // NIV_PRO = código región
-                prvProCodigo           // PRV_PRO = código provincia
+                prvProCodigo,          // PRV_PRO = código provincia
+                c.creadoPor            // <<<<< nuevo campo que viene del DTO
         );
 
         guardarPort.guardar(req);
