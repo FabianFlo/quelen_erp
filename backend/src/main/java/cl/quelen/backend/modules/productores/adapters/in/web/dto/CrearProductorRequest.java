@@ -28,4 +28,6 @@ public class CrearProductorRequest {
     // NUEVO: responsable (usuario del sidebar)
     @JsonAlias({ "creadoPor", "responsable", "usuario" })
     public String creadoPor;   // -> RESPONSABLE_PROD
+    
+    public String expCodigo;
 }

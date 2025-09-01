@@ -24,13 +24,16 @@ public interface CrearProductor {
         // Ciudad libre que se guardará en CIU_PRO
         public final String ciudad;
         
-        // NUEVO: responsable (usuario que crea el productor)
+        // Responsable (usuario que crea el productor)
         public final String creadoPor;
+
+        // Exportador asociado
+        public final String expCodigo;
 
         public Command(String codEmp, String codTem, String codPro, String nomPro, String zon,
                        Integer rutPro, String dv, String dirPro, String ggn,
                        String comunaCodigo, String comunaNombre,
-                       String ciudad, String creadoPor) {
+                       String ciudad, String creadoPor, String expCodigo) {
             this.codEmp = codEmp;
             this.codTem = codTem;
             this.codPro = codPro;
@@ -44,6 +47,7 @@ public interface CrearProductor {
             this.comunaNombre = comunaNombre;
             this.ciudad = ciudad;
             this.creadoPor = creadoPor;
+            this.expCodigo = expCodigo;
         }
     }
 

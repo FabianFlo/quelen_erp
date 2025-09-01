@@ -5,14 +5,20 @@ import cl.quelen.backend.modules.maestrosgeo.domain.port.in.ResolveComuna;
 import cl.quelen.backend.modules.productores.domain.model.Productor;
 import cl.quelen.backend.modules.productores.domain.port.in.CrearProductor;
 import cl.quelen.backend.modules.productores.domain.port.out.GuardarProductorPort;
+import cl.quelen.backend.modules.productores.domain.port.out.GuardarProductorExportadorPort;
+
 
 public class CrearProductorService implements CrearProductor {
 
     private final GuardarProductorPort guardarPort;
+    private final GuardarProductorExportadorPort guardarProdExpPort;
     private final ResolveComuna resolveComuna;
 
-    public CrearProductorService(GuardarProductorPort guardarPort, ResolveComuna resolveComuna) {
+    public CrearProductorService(GuardarProductorPort guardarPort, 
+                                GuardarProductorExportadorPort guardarProdExpPort, 
+                                ResolveComuna resolveComuna) {
         this.guardarPort = guardarPort;
+        this.guardarProdExpPort = guardarProdExpPort;
         this.resolveComuna = resolveComuna;
     }
 
@@ -72,6 +78,11 @@ public class CrearProductorService implements CrearProductor {
         );
 
         guardarPort.guardar(req);
+        
+        if (c.expCodigo != null && !c.expCodigo.trim().isEmpty()) {
+            guardarProdExpPort.guardar(c.codEmp, c.codTem, c.codPro, c.expCodigo.trim(), 0);
+        }
+
         return Result.ok(p.codPro);
     }
 
