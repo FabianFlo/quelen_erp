@@ -83,7 +83,7 @@ public class ProductorService {
         p.codCom     = req.comunaCodigo;
         p.codProvc   = e.provincia;
         p.ggn        = req.ggn;
-        p.fax        = null;
+        p.fax        = req.ggn;
         p.responsableProd = req.creadoPor;
 
         try {

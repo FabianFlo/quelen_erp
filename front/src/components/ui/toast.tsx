@@ -1,6 +1,14 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+  useEffect,
+} from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 /* ===========================
@@ -31,29 +39,53 @@ export const useToast = () => {
    =========================== */
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [portalEl, setPortalEl] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    // Creamos un contenedor dedicado en <body> para evitar cualquier stacking context
+    const el = document.createElement("div");
+    el.id = "toast-portal";
+    // Posición y z-index ABSOLUTAMENTE arriba de todo
+    el.style.position = "fixed";
+    el.style.top = "1rem";
+    el.style.right = "1rem";
+    el.style.zIndex = "99999999999"; // más alto que cualquier header/tabs loco
+    el.style.pointerEvents = "none"; // que no bloquee clics debajo salvo en los toasts
+    document.body.appendChild(el);
+    setPortalEl(el);
+    return () => {
+      document.body.removeChild(el);
+    };
+  }, []);
 
   const showToast = useCallback((message: string, type: ToastType = "info") => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
+    window.setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000); // auto-cierra en 4s
+    }, 4000);
   }, []);
 
   const removeToast = (id: number) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  return (
-    <ToastContext.Provider value={{ showToast }}>
-      {children}
-
-      {/* Contenedor en esquina superior derecha */}
-      <div className="fixed top-4 right-4 z-50 flex flex-col gap-3">
+  const Stack = (
+    <>
+      <div
+        className="flex flex-col gap-3"
+        style={{
+          // ya está fixed en el contenedor, acá solo por claridad
+          pointerEvents: "none",
+        }}
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg shadow-md border text-sm font-medium animate-slideIn
+            role="status"
+            className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-md border text-sm font-medium animate-slideIn
               ${toast.type === "success" ? "bg-emerald-50 text-emerald-800 border-emerald-200" : ""}
               ${toast.type === "error" ? "bg-red-50 text-red-800 border-red-200" : ""}
               ${toast.type === "info" ? "bg-sky-50 text-sky-800 border-sky-200" : ""}
@@ -64,6 +96,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <button
               onClick={() => removeToast(toast.id)}
               className="ml-auto text-gray-400 hover:text-gray-600"
+              aria-label="Cerrar notificación"
             >
               <X size={16} />
             </button>
@@ -71,7 +104,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         ))}
       </div>
 
-      {/* Animación */}
       <style jsx>{`
         @keyframes slideIn {
           from {
@@ -87,6 +119,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           animation: slideIn 0.3s ease-out;
         }
       `}</style>
+    </>
+  );
+
+  return (
+    <ToastContext.Provider value={{ showToast }}>
+      {children}
+      {portalEl ? createPortal(Stack, portalEl) : null}
     </ToastContext.Provider>
   );
 }
