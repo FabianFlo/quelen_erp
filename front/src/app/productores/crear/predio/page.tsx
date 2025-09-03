@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { ToastProvider, useToast } from "@/components/ui/toast";
 import { useState } from "react";
 import ComunaSelect from "@/components/ui/ComunaSelect";
+import ProductorSelect from "@/components/ui/ProductorSelect";
 
 /* =========================
    Helpers
@@ -144,13 +145,15 @@ function PredioForm() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {/* Código Productor */}
+        {/* Código Productor con ProductorSelect */}
         <div className="space-y-1.5 md:col-span-1">
           <Label>Productor (código)</Label>
-          <Input
-            placeholder="Ej: A5004"
+          <ProductorSelect
             value={predio.codPro}
-            onChange={onChangeFmt("codPro", (v) => toUpperMax(v, 16), 16)}
+            onChange={(codigo) => {
+              setPredio({ ...predio, codPro: codigo });
+              setErrors((prev) => ({ ...prev, codPro: "" }));
+            }}
           />
           {errors.codPro && <p className="text-sm text-red-600">{errors.codPro}</p>}
         </div>
